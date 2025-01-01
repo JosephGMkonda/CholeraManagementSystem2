@@ -1,11 +1,24 @@
 import express from 'express'
+import cors from 'cors'
 import appRouter from './routes/index.js';
 import {connectionToDB} from './DBConnection/connection.js'
 
 
+
 const app = express();
+
+
+const corsOptions = {
+    origin: "http://localhost:5173", 
+    methods: "GET,POST,PUT,DELETE", 
+    allowedHeaders: "Content-Type,Authorization", 
+  };
+
 // middleware region
 app.use(express.json());
+app.use(cors(corsOptions)); 
+
+
 
 app.use("/api/v1/Choloremanagement", appRouter);
 

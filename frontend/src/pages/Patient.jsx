@@ -1,7 +1,40 @@
+import React, { useEffect, useState } from "react";
+
 import { BsFillPersonPlusFill } from "react-icons/bs";
 import { BsSearch } from "react-icons/bs";
+import { BsFillPencilFill } from "react-icons/bs";
+import { BsFillTrashFill } from "react-icons/bs";
+
+import { FetchPatientsData } from "../services/Api";
+
 
 const Patient = () => {
+
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadPatients = async () => {
+      try {
+        setLoading(true);
+        const response = await FetchPatientsData();
+        const fetchedPatients = response?.Patients?.[0] || [];
+        setPatients(fetchedPatients);
+        console.log(response);
+        
+      } catch (error) {
+        console.error("Error loading patients:", error);
+        throw error;
+        
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPatients();
+  }, []);
+
+
   return (
     <div className="container py-[20px] px-[30px]">
       <div className="flex items-center justify-between mb-4">
@@ -24,43 +57,50 @@ const Patient = () => {
         </div>
       </div>
 
-      
-      
-      <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-blue-500 text-white">
-              <th className="py-2 px-4 text-left">Patient ID</th>
-              <th className="py-2 px-4 text-left">Name</th>
-              <th className="py-2 px-4 text-left">Age</th>
-              <th className="py-2 px-4 text-left">Gender</th>
-              <th className="py-2 px-4 text-left">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Sample data for patients */}
-            <tr className="border-b">
-              <td className="py-2 px-4">12345</td>
-              <td className="py-2 px-4">John Doe</td>
-              <td className="py-2 px-4">45</td>
-              <td className="py-2 px-4">Male</td>
-              <td className="py-2 px-4">
-                <button className="text-blue-500">View</button>
-              </td>
-            </tr>
-            <tr className="border-b">
-              <td className="py-2 px-4">12346</td>
-              <td className="py-2 px-4">Jane Smith</td>
-              <td className="py-2 px-4">34</td>
-              <td className="py-2 px-4">Female</td>
-              <td className="py-2 px-4">
-                <button className="text-blue-500">View</button>
-              </td>
-            </tr>
-            {/* More patient rows can be added here */}
-          </tbody>
-        </table>
-      </div>
+      {loading ? (
+        <p>Loading patients...</p>
+      ) : (
+        <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+          <table className="min-w-full table-auto border-collapse">
+            <thead>
+              <tr className="bg-blue-500 text-white">
+                <th className="py-2 px-4 text-left">Patient ID</th>
+                <th className="py-2 px-4 text-left">Name</th>
+                <th className="py-2 px-4 text-left">Age</th>
+                <th className="py-2 px-4 text-left">Gender</th>
+                <th className="py-2 px-4 text-left">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {patients.length > 0 ? (
+                patients.map((patient, index) => (
+                  <tr className="border-b" key={index}>
+                    <td className="py-2 px-4">{patient.custom_id}</td>
+                    <td className="py-2 px-4">{patient.fullname}</td>
+                    <td className="py-2 px-4">
+                      
+                      {new Date().getFullYear() - new Date(patient.date_of_birth).getFullYear()}
+                    </td>
+                    <td className="py-2 px-4">{patient.gender}</td>
+                    <td className="py-2 px-4">
+                      <button className="text-blue-500"><BsFillPencilFill/></button>
+                    </td>
+                    <td className="py-2 px-4">
+                      <button className="text-blue-500"><BsFillTrashFill/></button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-4">
+                    No patients found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
