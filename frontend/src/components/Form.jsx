@@ -1,6 +1,7 @@
 
 import  {useState } from 'react'
 import { Link } from 'react-router-dom'
+import { createPatient } from '../services/Api'
 const Form = () => {
 
     const [formData, setFormData] = useState({
@@ -25,6 +26,10 @@ const Form = () => {
 
 
  const [errors, setErrors] = useState({})
+ const [isSubmitted, setIsSubmitted] = useState(false)
+ const [submissionMessage, setIsSubmissionMessage] = useState("")
+
+
 
  const handleChange = (e) => {
     const {name, value} = e.target;
@@ -36,7 +41,7 @@ const Form = () => {
 
  const ValidateForm = () => {
     const newErrors = {};
-
+    console.log("Form data before submitting:", formData);
 
     if (!formData.fullname) newErrors.fullname = "Full name is required.";
     if (!formData.gender) newErrors.gender = "Gender is required.";
@@ -57,14 +62,46 @@ const Form = () => {
     if (!formData.status) newErrors.status = "Current status is required.";
 
     setErrors(newErrors);
-    return Object.Keys(newErrors).length  === 0;
+    return Object.keys(newErrors).length  === 0;
 
  };
 
- const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
     if(ValidateForm()) {
-       console.log("Form submitted successfully: ", formData);
+       setIsSubmitted(true);
+
+       try {
+        const response = await createPatient(formData);
+        console.log("Patient added successfully:", response);
+        setSubmissionMessage("Patient added successfully!");
+
+        setFormData({
+          fullname: "",
+          gender: "",
+          date_of_birth: "",
+          district: "",
+          village: "",
+          tradition_authority: "",
+          hospital: "",
+          date_of_admission: "",
+          date_of_discharge: "",
+          symptoms: "",
+          treatment_plan: "",
+          admission_status: "",
+          status: "",
+      });
+
+
+
+       } catch (error) {
+        console.error("Error adding patient:", error);
+        setIsSubmissionMessage("Failed to add patient. Please try again.");
+        
+       }
+       finally{
+        setIsSubmitted(false);
+       }
     }
     else{
         console.log("Form contains errors: ")
@@ -376,12 +413,16 @@ const Form = () => {
 
         {/* Submit Button */}
         <div className="col-span-2">
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600"
+        <button
+          type="submit"
+          className={`w-full py-2 px-4 font-bold rounded-md ${
+            isSubmitted ? "bg-gray-500 text-gray-300" : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          disabled={isSubmitted}
           >
-            Submit
+          {isSubmitted ? "Submitting..." : "Submit"}
           </button>
+
         </div>
       </form>
     </div>

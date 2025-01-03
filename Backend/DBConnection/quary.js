@@ -36,7 +36,7 @@ export const findPatient = async (id) => {
 }
 
 
-export const createPatient = async ( fullname,           
+export const createPatientSQL = async ( fullname,           
     gender,              
     date_of_birth,       
     district,            
@@ -67,7 +67,7 @@ export const createPatient = async ( fullname,
 
  try {
     const client = await pool.getConnection();
-    const createResult = await client.query[QUERY,[ fullname,            
+    const createResult = await client.query(QUERY,[ fullname,            
         gender,              
         date_of_birth,       
         district,            
@@ -80,7 +80,7 @@ export const createPatient = async ( fullname,
         date_of_discharge,   
         symptoms,            
         treatment_plan      
-        ]];
+        ]);
         return createResult;
  } catch (error) {
     console.log("error occurred while creating patient,", error);

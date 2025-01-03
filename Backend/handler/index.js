@@ -16,6 +16,8 @@ export const getAllPatients = async (req,res) => {
 };
 export const getPatient= async (req,res) => {};
 
+
+
 export const createPatient = async (req, res) => {
     const {
         fullname,
@@ -33,60 +35,11 @@ export const createPatient = async (req, res) => {
         treatment_plan
     } = req.body;
 
-    
-    const errors = [];
-
-    if (!fullname || typeof fullname !== 'string' || fullname.trim().length < 20) {
-        errors.push("Full name is required ");
-    }
-
-    if (!['male', 'female', 'other'].includes(gender)) {
-        errors.push("Gender is required");
-    }
-
-    if (!date_of_birth || isNaN(new Date(date_of_birth).getTime())) {
-        errors.push("A valid date of birth is required.");
-    }
-
-    if (!district || typeof district !== 'string' || district.trim().length < 20) {
-        errors.push("District is required ");
-    }
-
-    if (!hospital || typeof hospital !== 'string' || hospital.trim().length < 20) {
-        errors.push("Hospital is required");
-    }
-
-    if (!status || typeof status !== 'string') {
-        errors.push("Status is required.");
-    }
-
-    if (!admission_status || !['admitted', 'discharged', 'pending'].includes(admission_status)) {
-        errors.push("Admission status is required");
-    }
-
-    if (date_of_admission && isNaN(new Date(date_of_admission).getTime())) {
-        errors.push("If provided, date of admission must be a valid date.");
-    }
-
-    if (date_of_discharge && isNaN(new Date(date_of_discharge).getTime())) {
-        errors.push("If provided, date of discharge must be a valid date.");
-    }
-
-    if (!symptoms || !Array.isArray(symptoms) || symptoms.length === 0) {
-        errors.push("Symptoms are required ");
-    }
-
-    if (!treatment_plan || typeof treatment_plan !== 'string' || treatment_plan.trim().length < 5) {
-        errors.push("Treatment plan is required");
-    }
 
     
-    if (errors.length > 0) {
-        return res.status(400).json({ success: false, errors });
-    }
-
     
-    try {
+        console.log("Incoming Data:", req.body);
+        const Patient = await find();
         const newPatient = await Patient.create({
             fullname,
             gender,
@@ -104,9 +57,7 @@ export const createPatient = async (req, res) => {
         });
 
         res.status(201).json({ success: true, data: newPatient });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server error.", error });
-    }
+    
 };
 
 export const updatePatient = async (req,res) => {};
