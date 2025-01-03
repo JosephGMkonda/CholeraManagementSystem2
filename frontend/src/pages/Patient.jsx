@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-
+import { Link } from "react-router-dom";
 import { BsFillPersonPlusFill } from "react-icons/bs";
 import { BsSearch } from "react-icons/bs";
-import { BsFillPencilFill } from "react-icons/bs";
-import { BsFillTrashFill } from "react-icons/bs";
 
 import { FetchPatientsData } from "../services/Api";
+import Form from '../components/Form'
 
 
 const Patient = () => {
 
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     const loadPatients = async () => {
@@ -20,12 +20,9 @@ const Patient = () => {
         const response = await FetchPatientsData();
         const fetchedPatients = response?.Patients?.[0] || [];
         setPatients(fetchedPatients);
-        console.log(response);
-        
+        console.log(response)
       } catch (error) {
         console.error("Error loading patients:", error);
-        throw error;
-        
       } finally {
         setLoading(false);
       }
@@ -39,10 +36,16 @@ const Patient = () => {
     <div className="container py-[20px] px-[30px]">
       <div className="flex items-center justify-between mb-4">
         <div className="bg-blue-500">
+
           <button className="flex justify-center items-center py-[10px] h-[30px] rounded-[10px] px-[10px] bg-blue-500 text-white">
-            <BsFillPersonPlusFill />
-            Add
-          </button>
+      <Link
+        to="/form"
+        className="flex items-center space-x-2 text-white"
+      >
+        <BsFillPersonPlusFill />
+        <span>Add</span>
+      </Link>
+    </button>
         </div>
 
         <div className="flex items-center rounded-[5px]">
@@ -78,15 +81,12 @@ const Patient = () => {
                     <td className="py-2 px-4">{patient.custom_id}</td>
                     <td className="py-2 px-4">{patient.fullname}</td>
                     <td className="py-2 px-4">
-                      
+                      {/* Calculate age from date_of_birth */}
                       {new Date().getFullYear() - new Date(patient.date_of_birth).getFullYear()}
                     </td>
                     <td className="py-2 px-4">{patient.gender}</td>
                     <td className="py-2 px-4">
-                      <button className="text-blue-500"><BsFillPencilFill/></button>
-                    </td>
-                    <td className="py-2 px-4">
-                      <button className="text-blue-500"><BsFillTrashFill/></button>
+                      <button className="text-blue-500">View</button>
                     </td>
                   </tr>
                 ))
@@ -101,6 +101,21 @@ const Patient = () => {
           </table>
         </div>
       )}
+
+{/* {showForm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-black"
+              onClick={() => setShowForm(false)} 
+            >
+              ✕
+            </button>
+            <Form />
+          </div>
+        </div>
+      )} */}
+      
     </div>
   );
 };

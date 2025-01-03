@@ -13,8 +13,9 @@ const apiClient = axios.create({
 
 export const FetchPatientsData = async () => {
     try{
-
+        console.log("Starting API call...");
         const response = await apiClient.get("/");
+        console.log("API call successful, response:", response.data);
         return response.data;
 
 
@@ -25,3 +26,20 @@ export const FetchPatientsData = async () => {
 
     }
 }
+
+
+export const createPatient = async (patientData) => {
+    try {
+
+        const response = await apiClient.post('/create', patientData);
+
+        console.log("Patient data add here is the data ", response)
+        return response.data;
+        
+    } catch (error) {
+        console.error("Error adding patient: ", error);
+        throw error;
+        
+    }
+}
+

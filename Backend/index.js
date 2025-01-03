@@ -15,14 +15,9 @@ const corsOptions = {
   };
 
 // middleware region
-app.use(express.json());
 app.use(cors(corsOptions)); 
-
-
-
+app.use(express.json());
 app.use("/api/v1/Choloremanagement", appRouter);
-
-
 
 const PORT = process.env.PORT || 5000;
 
