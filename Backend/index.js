@@ -15,7 +15,7 @@ const corsOptions = {
   };
 
 // middleware region
-app.use(cors(corsOptions)); 
+app.use(cors()); 
 app.use(express.json());
 app.use("/api/v1/Choloremanagement", appRouter);
 

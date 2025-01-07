@@ -1,5 +1,34 @@
-import { find } from "../DBConnection/quary.js";
+import { find, create,getStatistics,TraditionatalStat } from "../DBConnection/quary.js";
 
+
+
+
+export const getPatientStatistics = async (req,res) => {
+
+    try {
+        const statistics = await getStatistics();
+        return res.status(200).json({statistics})
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Error Occurred"});
+        
+    }
+
+}
+
+export const getTraditionatalStat = async (req, res) => {
+    try{
+    const stat = await TraditionatalStat();
+    return res.status(200).json(stat);
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "Error Occurred"});
+
+    }finally{
+
+    }
+}
 
 
 
@@ -15,8 +44,6 @@ export const getAllPatients = async (req,res) => {
     }
 };
 export const getPatient= async (req,res) => {};
-
-
 
 export const createPatient = async (req, res) => {
     const {
@@ -37,10 +64,9 @@ export const createPatient = async (req, res) => {
 
 
     
-    
-        console.log("Incoming Data:", req.body);
-        const Patient = await find();
-        const newPatient = await Patient.create({
+    try {
+        
+        const newPatient = await create(
             fullname,
             gender,
             date_of_birth,
@@ -54,10 +80,12 @@ export const createPatient = async (req, res) => {
             date_of_discharge,
             symptoms,
             treatment_plan
-        });
+        );
 
         res.status(201).json({ success: true, data: newPatient });
-    
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server error.", error });
+    }
 };
 
 export const updatePatient = async (req,res) => {};

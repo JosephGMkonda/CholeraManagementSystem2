@@ -1,4 +1,6 @@
+
 import { pool } from "./connection.js";
+import { v4 as uuidv4 } from 'uuid';
 
 export const find = async () => {
     const QUERY = "SELECT * FROM patients";
@@ -36,7 +38,10 @@ export const findPatient = async (id) => {
 }
 
 
-export const createPatientSQL = async ( fullname,           
+
+export const create = async ( 
+
+    fullname,           
     gender,              
     date_of_birth,       
     district,            
@@ -50,7 +55,11 @@ export const createPatientSQL = async ( fullname,
     symptoms,            
     treatment_plan      
     ) => {
-    const QUERY = `INSERT INTO patients( fullname,          
+     const customId = uuidv4().split('-').join('').slice(0, 8)
+    const QUERY = `INSERT INTO patients( 
+
+ custom_id,   
+ fullname,          
  gender,              
  date_of_birth,       
  district,            
@@ -62,12 +71,15 @@ export const createPatientSQL = async ( fullname,
  date_of_admission,   
  date_of_discharge,   
  symptoms,            
- treatment_plan      
- ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+ treatment_plan
+      
+ ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`
 
  try {
     const client = await pool.getConnection();
-    const createResult = await client.query(QUERY,[ fullname,            
+    const createResult = await client.query(QUERY,[ 
+        customId,
+        fullname,            
         gender,              
         date_of_birth,       
         district,            
@@ -168,3 +180,78 @@ export const deletePatient = async (id) => {
     }
 };
 
+export const getStatistics = async () => {
+    const statusQuery = `
+      SELECT 
+        status,
+        COUNT(*) AS count
+      FROM
+        patients
+      WHERE
+        status IN ('Active', 'Recovered', 'Deceased')
+      GROUP BY
+        status;
+    `;
+  
+    const totalQuery = `SELECT COUNT(*) AS total_patients FROM patients;`;
+  
+    let client;
+  
+    try {
+      client = await pool.getConnection();
+      console.log("Database connection established.");
+  
+      const statusResults = await client.query(statusQuery);
+      console.log("Status Results:", statusResults);
+  
+      const totalResult = await client.query(totalQuery);
+      console.log("Total Result:", totalResult);
+  
+      const statusCounts = { Active: 0, Recovered: 0, Deceased: 0 };
+  
+      statusResults.forEach((row) => {
+        if (row.status === 'Active') statusCounts.Active = row.count;
+        else if (row.status === 'Recovered') statusCounts.Recovered = row.count;
+        else if (row.status === 'Deceased') statusCounts.Deceased = row.count;
+      });
+  
+      const totalPatients = totalResult[0]?.total_patients || 0;
+  
+      return { ...statusCounts, totalPatients };
+    } catch (error) {
+      console.error("Error occurred while getting statistics:", error);
+      throw error;
+    } finally {
+      if (client) client.release();
+      console.log("Database connection released.");
+    }
+  };
+  
+
+
+//   Traditionatal statistics
+
+export const TraditionatalStat = async () => {
+
+    const Query = `SELECT 
+    tradition_authority,
+    COUNT(*) AS total_patients
+FROM 
+    patients
+GROUP BY 
+    tradition_authority;`;
+
+    try {
+    const client = await pool.getConnection();
+    const getResults = await client.query(Query);
+
+    return getResults;
+
+        
+    } catch (error) {
+
+        console.error("Error occurred while getting statistics:", error);
+        throw error;   
+        
+    }
+}

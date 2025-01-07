@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { BsFillPersonPlusFill } from "react-icons/bs";
+import { BsFillPersonPlusFill,BsClipboard2Check, BsFillPencilFill, BsFillTrashFill,  BsChevronDoubleRight, BsChevronDoubleLeft} from "react-icons/bs";
 import { BsSearch } from "react-icons/bs";
-
 import { FetchPatientsData } from "../services/Api";
-import Form from '../components/Form'
 
 
 const Patient = () => {
-
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  
+
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [patientsPerPage] = useState(5); 
 
   useEffect(() => {
     const loadPatients = async () => {
@@ -20,7 +21,7 @@ const Patient = () => {
         const response = await FetchPatientsData();
         const fetchedPatients = response?.Patients?.[0] || [];
         setPatients(fetchedPatients);
-        console.log(response)
+        console.log(response);
       } catch (error) {
         console.error("Error loading patients:", error);
       } finally {
@@ -31,21 +32,27 @@ const Patient = () => {
     loadPatients();
   }, []);
 
+  
+  const indexOfLastPatient = currentPage * patientsPerPage;
+  const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
+  const currentPatients = patients.slice(indexOfFirstPatient, indexOfLastPatient);
+
+  
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  
+  const totalPages = Math.ceil(patients.length / patientsPerPage);
 
   return (
     <div className="container py-[20px] px-[30px]">
       <div className="flex items-center justify-between mb-4">
         <div className="bg-blue-500">
-
           <button className="flex justify-center items-center py-[10px] h-[30px] rounded-[10px] px-[10px] bg-blue-500 text-white">
-      <Link
-        to="/form"
-        className="flex items-center space-x-2 text-white"
-      >
-        <BsFillPersonPlusFill />
-        <span>Add</span>
-      </Link>
-    </button>
+            <Link to="/form" className="flex items-center space-x-2 text-white">
+              <BsFillPersonPlusFill />
+              <span>Add</span>
+            </Link>
+          </button>
         </div>
 
         <div className="flex items-center rounded-[5px]">
@@ -75,8 +82,8 @@ const Patient = () => {
               </tr>
             </thead>
             <tbody>
-              {patients.length > 0 ? (
-                patients.map((patient, index) => (
+              {currentPatients.length > 0 ? (
+                currentPatients.map((patient, index) => (
                   <tr className="border-b" key={index}>
                     <td className="py-2 px-4">{patient.custom_id}</td>
                     <td className="py-2 px-4">{patient.fullname}</td>
@@ -86,7 +93,9 @@ const Patient = () => {
                     </td>
                     <td className="py-2 px-4">{patient.gender}</td>
                     <td className="py-2 px-4">
-                      <button className="text-blue-500">View</button>
+                      <button className="px-2 text-blue-500"><BsClipboard2Check/></button>
+                      <button className="px-2 text-blue-500"><BsFillPencilFill/></button>
+                      <button className="px-2 text-blue-500"><BsFillTrashFill/></button>
                     </td>
                   </tr>
                 ))
@@ -102,20 +111,24 @@ const Patient = () => {
         </div>
       )}
 
-{/* {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-black"
-              onClick={() => setShowForm(false)} 
-            >
-              ✕
-            </button>
-            <Form />
-          </div>
-        </div>
-      )} */}
       
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg mr-2"
+        >
+          <BsChevronDoubleLeft/>
+        </button>
+        <span className="px-4 py-2">{`${currentPage} of ${totalPages}`}</span>
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg ml-4"
+        >
+          < BsChevronDoubleRight/>
+        </button>
+      </div>
     </div>
   );
 };

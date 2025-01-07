@@ -2,6 +2,8 @@
 import  {useState } from 'react'
 import { Link } from 'react-router-dom'
 import { createPatient } from '../services/Api'
+import {QRCodeCanvas} from 'qrcode.react';
+
 const Form = () => {
 
     const [formData, setFormData] = useState({
@@ -28,6 +30,7 @@ const Form = () => {
  const [errors, setErrors] = useState({})
  const [isSubmitted, setIsSubmitted] = useState(false)
  const [submissionMessage, setIsSubmissionMessage] = useState("")
+ const [dialogData, setDialogData] = useState(null);
 
 
 
@@ -66,47 +69,54 @@ const Form = () => {
 
  };
 
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
-    if(ValidateForm()) {
-       setIsSubmitted(true);
+    if (ValidateForm()) {
+        setIsSubmitted(true);
 
-       try {
-        const response = await createPatient(formData);
-        console.log("Patient added successfully:", response);
-        setSubmissionMessage("Patient added successfully!");
+        try {
+            const response = await createPatient(formData);
+            console.log("Patient added successfully:", response);
 
-        setFormData({
-          fullname: "",
-          gender: "",
-          date_of_birth: "",
-          district: "",
-          village: "",
-          tradition_authority: "",
-          hospital: "",
-          date_of_admission: "",
-          date_of_discharge: "",
-          symptoms: "",
-          treatment_plan: "",
-          admission_status: "",
-          status: "",
-      });
+            if (response && response.fullname && response.custom_id) {
+                setDialogData({
+                    name: response.fullname,
+                    id: response.custom_id,
+                });
+                setSubmissionMessage("Patient added successfully!");
+            } else {
+                console.error("Incomplete response data:", response);
+                setIsSubmissionMessage("Error: Invalid response from the server.");
+            }
 
+            // Reset form after successful submission
+            setFormData({
+                fullname: "",
+                gender: "",
+                date_of_birth: "",
+                district: "",
+                village: "",
+                tradition_authority: "",
+                hospital: "",
+                date_of_admission: "",
+                date_of_discharge: "",
+                symptoms: "",
+                treatment_plan: "",
+                admission_status: "",
+                status: "",
+            });
 
-
-       } catch (error) {
-        console.error("Error adding patient:", error);
-        setIsSubmissionMessage("Failed to add patient. Please try again.");
-        
-       }
-       finally{
-        setIsSubmitted(false);
-       }
+        } catch (error) {
+            console.error("Error adding patient:", error);
+            setIsSubmissionMessage("Failed to add patient. Please try again.");
+        } finally {
+            setIsSubmitted(false); // Reset button state
+        }
+    } else {
+        console.log("Form contains errors:", errors);
     }
-    else{
-        console.log("Form contains errors: ")
-    }
- };
+};
+
 
 
 
@@ -227,7 +237,12 @@ const Form = () => {
               }`}
             >
               <option value="">Select T/A</option>
-              <option value="Malanda">Malanda</option>
+              <option value="TA Kabunduli">TA Kabunduli</option>
+              <option value="TA Malengamzoma">TA Malengamzoma</option>
+              <option value="TA Fukamapiri">TA Fukamapiri</option>
+              <option value="TA Zilakoma">TA Zilakoma</option>
+              <option value="TA Mankhambira">TA Mankhambira</option>
+              <option value="TA Fukamalaza">TA Fukamalaza</option>
               
             </select>
             {errors.tradition_authority && (
@@ -250,7 +265,30 @@ const Form = () => {
               }`}
             >
               <option value="">Select Village</option>
-              <option value="Village">Village</option>
+              <option value="Kalwe">Kalwe</option>
+              <option value="Mzenga">Mzenga</option>
+              <option value="Chintheche">Chintheche</option>
+              <option value="Mwaya">Mwaya</option>
+              <option value="Chikwina">Chikwina</option>
+              <option value="Tukombo">Tukombo</option>
+              <option value="Kande">Kande</option>
+              <option value="Msuli">Msuli</option>
+              <option value="Usisya">Usisya</option>
+              <option value="Mpamba">Mpamba</option>
+              <option value="Chisala">Chisala</option>
+              <option value="Mazembe">Mazembe</option>
+              <option value="Vizimba">Vizimba</option>
+              <option value="Lusangazi">Lusangazi</option>
+              <option value="Luwuchi">Luwuchi</option>
+              <option value="Chirwa">Chirwa</option>
+              <option value="Mwazisi">Mwazisi</option>
+              <option value="Chisankhwa">Chisankhwa</option>
+              <option value="Ngongoti">Ngongoti</option>
+              <option value="Kapenda">Kapenda</option>
+              <option value="Chikwakwa">Chikwakwa</option>
+              <option value="Mayoka">Mayoka</option>
+
+
               
             </select>
             {errors.village && (
@@ -282,10 +320,21 @@ const Form = () => {
               }`}
             >
               <option value="">Select Hospital</option>
-              <option value="Kamuzu Central Hospital">
-                Kamuzu Central Hospital
-              </option>
-              <option value="DHO">DHO</option>
+              <option value="Nkhata-bay DHO">Nkhata-bay DHO</option>
+              <option value="Bula Health Center">Bula Health Center</option>
+              <option value="Bula Health Center">Bula Health Center</option>
+              <option value="Chikwina Health Center">Chikwina Health Center</option>
+              <option value="Lwazi Health Center">Lwazi Health Center</option>
+              <option value="Mpamba Health Center">Mpamba Health Center</option>
+              <option value="Mzenga Health Center">Mzenga Health Center</option>
+              <option value="Usisya Health Center">Usisya Health Center</option>
+              <option value="Nthungwa Health Center">Nthungwa Health Center</option>
+              <option value="Chisala Health Center">Chisala Health Center</option>
+              <option value="Tukombo Health Center">Tukombo Health Center</option>
+              <option value="Chintheche Health Center">Chintheche Health Center</option>
+              <option value="Mwaya Health Center">Mwaya Health Center</option>
+              <option value="Kawalazi Estate Clinic">Kawalazi Estate Clinic</option>
+              <option value="Chombe Estate Dispensary">Chombe Estate Dispensary</option>
             </select>
             {errors.hospital && (
               <p className="text-red-500 text-sm mt-1">{errors.hospital}</p>
@@ -337,7 +386,7 @@ const Form = () => {
               Admitted
               </option>
               <option value="Discharged">Discharged</option>
-              <option value="None">None</option>
+              <option value="Pending">Pending</option>
             </select>
             {errors.admission_status && (
               <p className="text-red-500 text-sm mt-1">{errors.admission_status}</p>
@@ -396,7 +445,7 @@ const Form = () => {
                 errors.status ? "border-red-500" : "border-gray-300"
               }`}
             >
-              <option value="">Select Admission Status</option>
+              <option value="">Select Status</option>
               <option value="Active">
               Active
               </option>
@@ -425,6 +474,34 @@ const Form = () => {
 
         </div>
       </form>
+
+      {dialogData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-2xl font-bold mb-4">Patient Details</h3>
+            <div className="flex items-center">
+              <QRCodeCanvas value={dialogData.id.toString()} className="mr-4" />
+              <div>
+                <p className="text-lg font-semibold">Name: {dialogData.name}</p>
+                <p className="text-lg font-semibold">ID: {dialogData.id}</p>
+              </div>
+            </div>
+            <div className="mt-6">
+              <button className="w-full py-2 px-4 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600">
+                Print
+              </button>
+            </div>
+            <button
+              onClick={() => setDialogData(null)}
+              className="mt-4 w-full py-2 px-4 bg-red-500 text-white font-bold rounded-md hover:bg-red-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+
     </div>
     )
 }
