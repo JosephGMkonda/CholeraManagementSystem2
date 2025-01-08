@@ -19,14 +19,14 @@ export const find = async () => {
 }
 
 
-export const findPatient = async (id) => {
+export const findById = async (id) => {
 
     const QUERY = "SELECT * FROM patients WHERE id = ? ";
 
     try {
         const client = await pool.getConnection();
         const showResult = await client.query(QUERY,[id]);
-        return showResult;
+        return showResult[0];
 
     } catch (error) {
         console.log("Error occcured while finding the patient record", error);
@@ -198,14 +198,8 @@ export const getStatistics = async () => {
     let client;
   
     try {
-      client = await pool.getConnection();
-      console.log("Database connection established.");
-  
-      const statusResults = await client.query(statusQuery);
-      console.log("Status Results:", statusResults);
-  
-      const totalResult = await client.query(totalQuery);
-      console.log("Total Result:", totalResult);
+        const [statusResults] = await pool.query(statusQuery); 
+        const [totalResult] = await pool.query(totalQuery);
   
       const statusCounts = { Active: 0, Recovered: 0, Deceased: 0 };
   
@@ -231,7 +225,7 @@ export const getStatistics = async () => {
 
 //   Traditionatal statistics
 
-export const TraditionatalStat = async () => {
+export const getTraditionalStatistics = async () => {
 
     const Query = `SELECT 
     tradition_authority,
@@ -243,9 +237,60 @@ GROUP BY
 
     try {
     const client = await pool.getConnection();
-    const getResults = await client.query(Query);
+    const [rows] = await client.query(Query);
+    console.log("Query executed successfully, results:", rows);
 
-    return getResults;
+    return rows;
+
+        
+    } catch (error) {
+
+        console.error("Error occurred while getting statistics:", error);
+        throw error;   
+        
+    }
+}
+
+
+export const getGenderStat = async () => {
+
+    const Query = `SELECT gender, COUNT(*) AS count FROM patients GROUP BY gender;`;
+
+    try {
+    const client = await pool.getConnection();
+    const [rows] = await client.query(Query);
+    console.log("Query executed successfully, results:", rows);
+
+    return rows;
+
+        
+    } catch (error) {
+
+        console.error("Error occurred while getting statistics:", error);
+        throw error;   
+        
+    }
+}
+
+
+export const getVillageStat = async () => {
+
+    const Query = `SELECT 
+    village, 
+    COUNT(*) AS patient_count
+FROM 
+    patients
+GROUP BY 
+    village
+ORDER BY 
+    patient_count DESC;`;
+
+    try {
+    const client = await pool.getConnection();
+    const [rows] = await client.query(Query);
+    console.log("Query executed successfully, results:", rows);
+
+    return rows;
 
         
     } catch (error) {

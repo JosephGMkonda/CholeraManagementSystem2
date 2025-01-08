@@ -1,25 +1,53 @@
-import { find, create,getStatistics,TraditionatalStat } from "../DBConnection/quary.js";
+import { find, create,findById,getStatistics,getTraditionalStatistics,getGenderStat,getVillageStat } from "../DBConnection/quary.js";
 
 
 
-
-export const getPatientStatistics = async (req,res) => {
-
+export const getVillageStatistics = async (req,res) => {
     try {
-        const statistics = await getStatistics();
-        return res.status(200).json({statistics})
+        const Patients = await getVillageStat();
+        
+        return res.status(200).json({Patients});
+
     } catch (error) {
         console.log(error);
         res.status(500).json({message: "Error Occurred"});
         
     }
+};
 
-}
 
-export const getTraditionatalStat = async (req, res) => {
+export const getGenderStatistics = async (req,res) => {
+    try {
+        const Patients = await getGenderStat();
+        
+        return res.status(200).json({Patients});
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Error Occurred"});
+        
+    }
+};
+
+export const getPatientsStat = async (req,res) => {
+    try {
+        const Patients = await getStatistics();
+        
+        return res.status(200).json({Patients});
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Error Occurred"});
+        
+    }
+};
+
+
+export const getTraditionalStat = async (req, res) => {
     try{
-    const stat = await TraditionatalStat();
-    return res.status(200).json(stat);
+    const stat = await getTraditionalStatistics();
+    
+    return res.status(200).json({ patient: stat });
 
     }catch(error){
         console.log(error);
@@ -35,6 +63,7 @@ export const getTraditionatalStat = async (req, res) => {
 export const getAllPatients = async (req,res) => {
     try {
         const Patients = await find();
+        
         return res.status(200).json({Patients});
 
     } catch (error) {
@@ -43,7 +72,17 @@ export const getAllPatients = async (req,res) => {
         
     }
 };
-export const getPatient= async (req,res) => {};
+export const getPatient= async (req,res) => {
+    const id = req.params.id;
+    try {
+        const patient = await findById(id);
+        return res.status(200).json({patient})
+    } catch (error) {
+         console.log(error);
+        res.status(500).json({message: "Error Occurred"});
+    }
+
+};
 
 export const createPatient = async (req, res) => {
     const {
